@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
-using Persistencia.Repository;
+
+
 namespace Aplicacion.Services
 {
     public interface IGenericService<T> where T : class

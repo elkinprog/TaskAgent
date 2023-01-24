@@ -12,20 +12,24 @@ namespace WebApi.Controllers
     public class ClientController : ControllerBase
     {
         private readonly IGenericService<Client> _service;
+        private readonly ILogger<ClientController> _logger;
 
-        public ClientController(IGenericService<Client> service)
+        public ClientController(IGenericService<Client> service, ILogger<ClientController> logger)
         {
            this._service= service;
+            this._logger = logger;  
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Client>>> getAllClientes()
         {
+            _logger.LogInformation("Se encontraron los clientes");
             var response = new { Titulo = "Bien Hecho!", Mensaje = "Se encontraron los Clientes", Codigo = HttpStatusCode.OK };
             IEnumerable<Client> ClientModel = null;
             if (!await _service.ExistsAsync(e => e.Id > 0))
             {
-                response = new { Titulo = "Algo salio mal", Mensaje = "No existen Cliente", Codigo = HttpStatusCode.Accepted };
+                _logger.LogWarning("No existen cliente");
+                response = new { Titulo = "Algo salio mal", Mensaje = "No existen cliente", Codigo = HttpStatusCode.Accepted };
             }
             else
             {
@@ -43,6 +47,7 @@ namespace WebApi.Controllers
             Client ClientModel = null;
             if (!await _service.ExistsAsync(e => e.Id > 0))
             {
+                _logger.LogWarning("No existen clientes");
                 response = new { Titulo = "Algo salio mal", Mensaje = "No existen clientes", Codigo = HttpStatusCode.BadRequest };
             }
 
@@ -50,10 +55,12 @@ namespace WebApi.Controllers
 
             if (client.Count < 1)
             {
+                _logger.LogWarning("No existe clientes con id con el id solicitado");
                 response = new { Titulo = "Algo salio mal", Mensaje = "No existe clientes con id " + Id, Codigo = HttpStatusCode.NotFound };
             }
             else
             {
+                _logger.LogInformation("Se obtuvo el cliente con el Id solicitado");
                 ClientModel = client.First();
                 response = new { Titulo = "Bien Hecho!", Mensaje = "Se obtuvo el cliente con el Id solicitado", Codigo = HttpStatusCode.OK };
             }
@@ -66,6 +73,7 @@ namespace WebApi.Controllers
         {
             try
             {
+                _logger.LogInformation("Cliente creado de forma correcta");
                 var response = new { Titulo = "Bien Hecho!", Mensaje = "Cliente creado de forma correcta", Codigo = HttpStatusCode.Created };
                 Client ClientModel = null;
 
@@ -73,6 +81,7 @@ namespace WebApi.Controllers
                 bool guardo = await _service.CreateAsync(client);
                 if (!guardo)
                 {
+                    _logger.LogError("No se puedo guardar el cliente");
                     response = new { Titulo = "Algo salio mal", Mensaje = "No se puedo guardar el cliente", Codigo = HttpStatusCode.BadRequest };
                 }
                 else
@@ -91,15 +100,18 @@ namespace WebApi.Controllers
         [HttpPut("{Id}")]
         public async Task<IActionResult> UpdateClientes(long Id, Client client)
         {
+            _logger.LogInformation("Se actualizó cliente de forma correcta");
             var response = new { Titulo = "Bien Hecho!", Mensaje = "Se actualizó cliente de forma correcta", Codigo = HttpStatusCode.OK };
             try
             {
                 if (Id != client.Id)
                 {
+                    _logger.LogError("El id de cliente no corresponde con el modelo");
                     response = new { Titulo = "Algo salió mal!", Mensaje = "El id de cliente no corresponde con el modelo", Codigo = HttpStatusCode.BadRequest };
                 }
                 else if (client.Id < 1)
                 {
+                    _logger.LogError("El modelo de cliente no tiene el campo Id");
                     response = new { Titulo = "Algo salió mal!", Mensaje = "El modelo de cliente no tiene el campo Id ", Codigo = HttpStatusCode.BadRequest };
                 }
                 else
@@ -108,6 +120,7 @@ namespace WebApi.Controllers
 
                     if (clientes == null)
                     {
+                        _logger.LogError("No existe cliente con id ");
                         response = new { Titulo = "Algo salio mal", Mensaje = "No existe cliente con id " + Id, Codigo = HttpStatusCode.NotFound };
                     }
                     else
@@ -117,6 +130,7 @@ namespace WebApi.Controllers
 
                         if (!updated)
                         {
+                            _logger.LogError("No fue posible actualizar el cliente");
                             response = new { Titulo = "Algo salió mal!", Mensaje = "No fue posible actualizar el cliente", Codigo = HttpStatusCode.NoContent };
                         }
                     }
@@ -124,6 +138,7 @@ namespace WebApi.Controllers
             }
             catch (ExcepcionError)
             {
+                _logger.LogError("Ocurrio una excepción interna");
                 response = new { Titulo = "Algo salió mal!", Mensaje = "Ocurrio una excepción interna", Codigo = HttpStatusCode.InternalServerError};
                 var error = new ExcepcionError(response.Codigo, response.Titulo, response.Mensaje);
                 return StatusCode((int)error.Codigo, error);
@@ -135,6 +150,7 @@ namespace WebApi.Controllers
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteClientes(long Id)
         {
+            _logger.LogInformation("Se eliminó el cliente de forma correcta");
             var response = new { Titulo = "Bien Hecho!", Mensaje = "Se eliminó el cliente de forma correcta", Codigo = HttpStatusCode.OK };
             var cliente = await _service.FindAsync(Id);
 
@@ -147,7 +163,8 @@ namespace WebApi.Controllers
                 bool elimino = await _service.DeleteAsync(Id);
                 if (!elimino)
                 {
-                    response = new { Titulo = "Algo salió mal!", Mensaje = "No se pudo eliminar el cliente con Id " + Id, Codigo = HttpStatusCode.NoContent };
+                    _logger.LogError("No se pudo eliminar el cliente con Id");
+                    response = new { Titulo = "Algo salió mal!", Mensaje = "No se pudo eliminar el cliente con Id" + Id, Codigo = HttpStatusCode.NoContent };
                 }
             }
             var updateResponse = new GenericResponse(response.Codigo, response.Titulo, response.Mensaje);

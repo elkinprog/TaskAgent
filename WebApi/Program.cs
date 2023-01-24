@@ -1,81 +1,101 @@
 using Aplicacion.Services;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
 using Persistencia.Context;
-using Persistencia.Repository;
 
-var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-DotNetEnv.Env.Load();
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 
-var logger = LoggerFactory.Create(config =>
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+
+
+
+try
 {
-    config.AddConsole();
-}).CreateLogger("Program");
+    logger.Debug("Aplicación iniciada...");
 
+    builder.Services.AddControllers();
 
-logger.LogInformation("CADENA DE CONEXION: " + Environment.GetEnvironmentVariable("CONNECTION_STRING"));
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
+    DotNetEnv.Env.Load();
 
-var connectionstring = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-
-
-builder.Services.AddDbContext<SqlLIteContext>(options =>
-                       options.UseSqlite(connectionstring),
-            ServiceLifetime.Transient);
-
-
-
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
-
-
-    
-
-
-builder.Services.AddCors(opt => {
-    opt.AddPolicy(name: myAllowSpecificOrigins,
-        builder => {
-            builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-        });
-
-
-});
-
-
-var app = builder.Build();
+    builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+    builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 
 
 
-using (var scope = app.Services.CreateScope())
+    builder.Services.AddCors(opt => {
+        opt.AddPolicy(name: myAllowSpecificOrigins,
+            builder => {
+                builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+            });
+
+
+    });
+
+
+    var connectionstring = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
+
+    builder.Services.AddDbContext<SqlLIteContext>(options =>
+                           options.UseSqlite(connectionstring),
+                ServiceLifetime.Transient);
+
+    var app = builder.Build();
+
+
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var context = services.GetRequiredService<SqlLIteContext>();
+            context.Database.Migrate();
+        }
+        catch (Exception e)
+        {
+            var loggin = services.GetRequiredService<ILogger<Program>>();
+            loggin.LogError(e, "Ocurrio un eror en la migración");
+        }
+    }
+
+
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
+
+}
+catch (Exception ex)
 {
-    var context = scope.ServiceProvider.GetRequiredService<SqlLIteContext>();
-    context.Database.Migrate();
+    logger.Error(ex, "Excepción durante la ejecución");
+    throw;
+}
+finally
+{
+    NLog.LogManager.Shutdown();
 }
 
 
 
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();

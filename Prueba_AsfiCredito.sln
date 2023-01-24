@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dominio", "Dominio\Dominio.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistencia", "Persistencia\Persistencia.csproj", "{3C22618D-A28F-49F0-A8CA-73CF3F8B76CE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{DDFCEBD3-5D1D-4D44-BE18-835B8B5B6D96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{493B52A3-6C13-439F-B210-202F47595CDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{3C22618D-A28F-49F0-A8CA-73CF3F8B76CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C22618D-A28F-49F0-A8CA-73CF3F8B76CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C22618D-A28F-49F0-A8CA-73CF3F8B76CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDFCEBD3-5D1D-4D44-BE18-835B8B5B6D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDFCEBD3-5D1D-4D44-BE18-835B8B5B6D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDFCEBD3-5D1D-4D44-BE18-835B8B5B6D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDFCEBD3-5D1D-4D44-BE18-835B8B5B6D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{493B52A3-6C13-439F-B210-202F47595CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{493B52A3-6C13-439F-B210-202F47595CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{493B52A3-6C13-439F-B210-202F47595CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{493B52A3-6C13-439F-B210-202F47595CDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

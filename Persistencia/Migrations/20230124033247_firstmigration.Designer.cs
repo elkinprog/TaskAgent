@@ -11,7 +11,7 @@ using Persistencia.Context;
 namespace Persistencia.Migrations
 {
     [DbContext(typeof(SqlLIteContext))]
-    [Migration("20230121030717_firstmigration")]
+    [Migration("20230124033247_firstmigration")]
     partial class firstmigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

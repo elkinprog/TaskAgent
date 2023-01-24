@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Persistencia.Context;
 
 
-namespace Persistencia.Repository
+namespace Aplicacion.Services
 {
     public interface IGenericRepository<T> where T : class
     {       
